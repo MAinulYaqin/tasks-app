@@ -9,8 +9,14 @@ import Container from '../Container';
 /* Constants
 ============================================================================*/
 const { width, height } = Dimensions.get('window');
+const { grey600, grey800, blue600 } = config;
+const COVER_HEIGHT = 430;
 
 export default class Intro extends PureComponent {
+	_GoToHomeScreen = () => {
+		this.props.navigation.navigate('Tasks');
+	};
+
 	render() {
 		return (
 			<Container>
@@ -23,7 +29,11 @@ export default class Intro extends PureComponent {
 							<Subheading style={styles.subHeading}>
 								Keep track of important things that you need to get done in one place.
 							</Subheading>
-							<Button mode="contained" uppercase={false} style={styles.button} onPress={() => {}}>
+							<Button
+								mode="contained"
+								uppercase={false}
+								style={styles.button}
+								onPress={this._GoToHomeScreen}>
 								Get started
 							</Button>
 						</View>
@@ -38,11 +48,11 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		justifyContent: 'center',
-		alignItems: 'center',
+		alignItems: 'center'
 	},
 	imageCover: {
 		width: width,
-		height: 430,
+		height: COVER_HEIGHT,
 		resizeMode: 'cover'
 	},
 	content: {
@@ -51,15 +61,15 @@ const styles = StyleSheet.create({
 		alignItems: 'center'
 	},
 	headline: {
-		color: config.grey800
+		color: grey800
 	},
 	subHeading: {
 		textAlign: 'center',
-		color: config.grey600,
+		color: grey600,
 		marginTop: 10,
 		marginBottom: 20
 	},
 	button: {
-		backgroundColor: config.blue600
+		backgroundColor: blue600
 	}
 });
