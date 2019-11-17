@@ -13,15 +13,10 @@ const { grey600, grey800, blue600 } = config;
 const IMAGE_SQUARE_SIZE = 250;
 
 export default class Tasks extends Component {
-	static navigationOptions = {
-		drawerIcon: ({ tintColor }) => <Icon name="playlist-edit" size={25} color={tintColor} />
-	};
 
-	_openDrawer = () => {
-		this.props.navigation.openDrawer();
+	_addTodo = () => {
+		this.props.navigation.navigate('AddTasks')
 	};
-
-	_addTodo = () => {};
 
 	render() {
 		return (
@@ -30,9 +25,8 @@ export default class Tasks extends Component {
 				<View style={{ padding: 15 }}>
 					<Searchbar
 						placeholder="Search your notes"
-						icon="menu"
+						icon="magnify"
 						selectionColor={config.grey700}
-						onIconPress={this._openDrawer}
 					/>
 				</View>
 				<View style={styles.container}>

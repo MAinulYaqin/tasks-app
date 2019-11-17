@@ -1,18 +1,21 @@
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
-import { createDrawerNavigator } from 'react-navigation-drawer';
-import { fromRight } from 'react-navigation-transitions';
+import { fromRight, fromBottom } from 'react-navigation-transitions';
 
 import Intro from '../components/screens/Intro';
 import Tasks from '../components/screens/Tasks';
-import Archives from '../components/screens/Archives';
+import AddTasks from '../components/screens/AddTasks';
 
-const TasksStack = createDrawerNavigator({
-	Tasks: Tasks,
-	Archives: Archives
-}, {
-	initialRouteName: 'Tasks'
-});
+const TasksStack = createStackNavigator(
+	{
+		Tasks: Tasks,
+		AddTasks: AddTasks
+	},
+	{
+		initialRouteName: 'Tasks',
+		headerMode: 'none',
+	}
+);
 
 const AppNavigator = createStackNavigator(
 	{
