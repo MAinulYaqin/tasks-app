@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, StatusBar, Image } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, Image, ScrollView, Dimensions } from 'react-native';
 import * as config from '../../../config';
 import { Appbar, Title, Subheading, FAB, Searchbar } from 'react-native-paper';
-import { MaterialCommunityIcons as Icon } from '@expo/vector-icons';
+import { connect } from 'react-redux';
 
 import Container from '../Container';
 import CustomStatusBar from '../CustomStatusBar';
@@ -10,35 +10,41 @@ import CustomStatusBar from '../CustomStatusBar';
 /* CONSTANTS
 ============================================================================*/
 const { grey600, grey800, blue600 } = config;
+const { height, width } = Dimensions.get('window');
 const IMAGE_SQUARE_SIZE = 250;
 
-export default class Tasks extends Component {
-
+class Tasks extends Component {
 	_addTodo = () => {
-		this.props.navigation.navigate('AddTasks')
+		this.props.navigation.navigate('AddTasks');
 	};
 
 	render() {
 		return (
 			<Container>
 				<CustomStatusBar />
-				<View style={{ padding: 15 }}>
-					<Searchbar
-						placeholder="Search your notes"
-						icon="magnify"
-						selectionColor={config.grey700}
-					/>
-				</View>
-				<View style={styles.container}>
-					<Image source={require('../../../assets/illustrations/home.png')} style={styles.image} />
-					<Title style={styles.title}>A fresh start</Title>
-					<Subheading style={styles.subheading}>Anything to add ?</Subheading>
-					<FAB icon="plus" style={styles.fab} onPress={this._addTodo} />
-				</View>
+				<ScrollView contentContainerStyle={{ flex: 1 }} keyboardShouldPersistTaps="handled">
+					<View style={{ padding: 15 }}>
+						<Searchbar placeholder="Search your notes" icon="magnify" selectionColor={config.grey700} />
+					</View>
+					<View style={styles.container}>
+						<Image source={require('../../../assets/illustrations/home.png')} style={styles.image} />
+						<Title style={styles.title}>A fresh start</Title>
+						<Subheading style={styles.subheading}>Anything to add ?</Subheading>
+						<FAB icon="plus" style={styles.fab} onPress={this._addTodo} />
+					</View>
+				</ScrollView>
 			</Container>
 		);
 	}
 }
+
+const mapStateToProps = (state) => {
+	return {
+		tasks: state.tasks
+	};
+};
+
+export default connect(mapStateToProps, null)(Tasks);
 
 const styles = StyleSheet.create({
 	container: {

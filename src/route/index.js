@@ -13,7 +13,7 @@ const TasksStack = createStackNavigator(
 	},
 	{
 		initialRouteName: 'Tasks',
-		headerMode: 'none',
+		headerMode: 'none'
 	}
 );
 

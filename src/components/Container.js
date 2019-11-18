@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { SafeAreaView, StyleSheet } from 'react-native';
 import pt from 'prop-types';
 
 /**
@@ -11,7 +11,7 @@ import pt from 'prop-types';
  */
 export default class Container extends Component {
 	render() {
-		return <View style={{ ...styles.container, ...this.props.style }}>{this.props.children}</View>;
+		return <SafeAreaView style={{ ...styles.container, ...this.props.style }}>{this.props.children}</SafeAreaView>;
 	}
 }
 

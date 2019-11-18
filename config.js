@@ -1,3 +1,8 @@
+export const ADD_TASK = 'ADD_TASKS';
+export const ADD_CHECKLIST = 'ADD_CHECKLIST';
+export const REMOVE_CHECKLIST = 'REMOVE_CHECKLIST';
+export const REMOVE_TASKS = 'REMOVE_TASKS';
+
 /* COLOR CONFIG
 ============================================================================*/
 export const red50 = '#ffebee';
