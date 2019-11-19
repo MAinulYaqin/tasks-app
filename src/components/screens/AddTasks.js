@@ -30,23 +30,24 @@ class AddTasks extends Component {
 
 		this.state = {
 			showCheckbox: false,
-			title: null
+			title: null,
+			content: null
 		};
 	}
 
 	_backAndSave = async () => {
-		const data = {
-			id: this.props.tasks.length,
-			title: this.state.title
-		};
-
-		await this.props.addTask(data);
 		this.props.navigation.goBack();
 	};
 
-	_showChecklist = () => {
-		this.setState({ showCheckbox: !this.state.showCheckbox });
-	};
+	componentWillUnmount() {
+		const data = {
+			id: this.props.tasks.length,
+			title: this.titleRef._lastNativeText,
+			content: this.noteRef._lastNativeText
+		};
+
+		this.props.addTask(data);
+	}
 
 	_focusNote = () => {
 		if (!this.state.showCheckbox) {
@@ -54,39 +55,20 @@ class AddTasks extends Component {
 		}
 	};
 
-	_renderNote() {
-		if (this.state.showCheckbox) {
-			return <Checklist />;
-		}
-
-		return (
-			<TextInput
-				ref={(noteReft) => (this.noteRef = noteReft)}
-				multiline={true}
-				placeholder="Note"
-				placeholderTextColor={grey600}
-				accessibilityTraits="text"
-				accessibilityRole="text"
-				style={styles.note}
-			/>
-		);
-	}
-
 	render() {
 		return (
 			<Container>
-				<KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+				<KeyboardAvoidingView style={styles.keyboardView} behavior="padding">
 					<Appbar.Header style={styles.appbarHeader}>
 						<Appbar.BackAction onPress={this._backAndSave} color={grey700} />
 					</Appbar.Header>
-					<View style={{ flex: 1, height: height }}>
+					<View style={styles.scrollViewWrapper}>
 						<ScrollView
-							style={{
-								flex: 1
-							}}
+							style={styles.scrollView}
 							keyboardShouldPersistTaps="handled"
-							contentContainerStyle={{ padding: 20 }}>
+							contentContainerStyle={styles.contentContainerStyle}>
 							<TextInput
+								ref={(title) => (this.titleRef = title)}
 								placeholder="Title"
 								autoFocus={true}
 								numberOfLines={1}
@@ -95,19 +77,26 @@ class AddTasks extends Component {
 								returnKeyType="next"
 								accessibilityTraits="text"
 								accessibilityRole="text"
-								onChangeText={(title) => this.setState({ title })}
 								onSubmitEditing={this._focusNote}
 								style={styles.title}
 							/>
-							{this._renderNote()}
+							<TextInput
+								ref={(noteReft) => (this.noteRef = noteReft)}
+								multiline={true}
+								placeholder="Note"
+								placeholderTextColor={grey600}
+								accessibilityTraits="text"
+								accessibilityRole="text"
+								style={styles.note}
+							/>
 						</ScrollView>
-						<Appbar style={styles.appbarBottom}>
+						{/* <Appbar style={styles.appbarBottom}>
 							<Appbar.Action
 								icon="checkbox-marked-outline"
 								color={config.white}
 								onPress={this._showChecklist}
 							/>
-						</Appbar>
+						</Appbar> */}
 					</View>
 				</KeyboardAvoidingView>
 			</Container>
@@ -130,6 +119,9 @@ const mapDispatchToProps = (dispatch) => {
 export default connect(mapStateToProps, mapDispatchToProps)(AddTasks);
 
 const styles = StyleSheet.create({
+	keyboardView: {
+		flex: 1
+	},
 	container: {
 		flex: 1,
 		padding: 20
@@ -146,6 +138,16 @@ const styles = StyleSheet.create({
 		marginVertical: 2,
 		letterSpacing: 0,
 		color: grey800
+	},
+	scrollViewWrapper: {
+		flex: 1,
+		height: height
+	},
+	scrollView: {
+		flex: 1
+	},
+	contentContainerStyle: {
+		padding: 20
 	},
 	note: {
 		fontWeight: 'normal',
