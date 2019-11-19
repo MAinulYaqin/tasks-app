@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, StatusBar, Image, ScrollView, Dimensions, FlatList } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, Image, ScrollView, Dimensions, FlatList, AsyncStorage } from 'react-native';
 import * as config from '../../../config';
-import { Appbar, Title, Subheading, FAB, Searchbar, Card, Paragraph } from 'react-native-paper';
+import { Title, Subheading, FAB, Searchbar } from 'react-native-paper';
+import { addTask, removeTask } from '../../redux/actions/tasks';
 import { connect } from 'react-redux';
 
 import Container from '../Container';
 import CustomStatusBar from '../CustomStatusBar';
+import CustomCard from '../CustomCard';
 
 /* CONSTANTS
 ============================================================================*/
@@ -14,6 +16,30 @@ const { height, width } = Dimensions.get('window');
 const IMAGE_SQUARE_SIZE = 250;
 
 class Tasks extends Component {
+	state = {
+		selected: false,
+		keys: [],
+		selectedData: []
+	};
+
+	async getItems() {
+		await AsyncStorage.getAllKeys().then((keys) => {
+			this.setState({ keys });
+		});
+
+		await this.state.keys.map((e) => {
+			AsyncStorage.getItem(e).then((data) => {
+				this.props.addTask(JSON.parse(data));
+			});
+		});
+	}
+
+	componentDidMount() {
+		if (this.props.tasks.length === 0) {
+			this.getItems();
+		}
+	}
+
 	_renderCards() {
 		if (this.props.tasks.length === 0) {
 			return (
@@ -39,20 +65,27 @@ class Tasks extends Component {
 				keyExtractor={(e) => JSON.stringify(e.id)}
 				renderItem={({ index, item }) => {
 					return (
-						<Card key={item.id} style={{ margin: 5, height: 200, width: width / 2 - 30, backgroundColor: item.bacol }}>
-							<Card.Title title={item.title} />
-							<Card.Content>
-								<Paragraph>{item.content}</Paragraph>
-							</Card.Content>
-						</Card>
+						<CustomCard
+							data={item}
+							onLongPress={(data) => {
+								this.state.selectedData.push(data);
+								this.setState({ selected: true });
+							}}
+						/>
 					);
 				}}
 			/>
 		);
 	}
 
-	_addTodo = () => {
-		this.props.navigation.navigate('AddTasks');
+	_addTodo = async () => {
+		if (this.state.selected) {
+			await this.props.removeTask(this.state.selectedData[0].id);
+			await AsyncStorage.removeItem(`@data${this.state.selectedData[0].id}`);
+			this.setState({ selectedData: [], selected: false });
+		} else {
+			this.props.navigation.navigate('AddTasks');
+		}
 	};
 
 	render() {
@@ -67,7 +100,7 @@ class Tasks extends Component {
 						style={{ position: 'absolute', top: 0, margin: 15 }}
 					/>
 					{this._renderCards()}
-					<FAB icon="plus" style={styles.fab} onPress={this._addTodo} />
+					<FAB icon={this.state.selected ? 'delete' : 'plus'} style={styles.fab} onPress={this._addTodo} />
 				</View>
 			</Container>
 		);
@@ -80,7 +113,14 @@ const mapStateToProps = (state) => {
 	};
 };
 
-export default connect(mapStateToProps, null)(Tasks);
+const mapDispatchToProps = (dispatch) => {
+	return {
+		addTask: (data) => addTask(data, dispatch),
+		removeTask: (data) => removeTask(data, dispatch)
+	};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Tasks);
 
 const styles = StyleSheet.create({
 	container: {

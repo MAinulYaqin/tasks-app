@@ -8,11 +8,12 @@ import {
 	TextInput,
 	KeyboardAvoidingView,
 	ScrollView,
-	Alert
+	Alert,
+	AsyncStorage
 } from 'react-native';
 import { Appbar, Headline, Paragraph, Subheading, List, Checkbox, Button } from 'react-native-paper';
 import { connect } from 'react-redux';
-import { addTask } from '../../redux/actions/tasks';
+import { addTask, saveTask } from '../../redux/actions/tasks';
 import * as config from '../../../config';
 
 import Container from '../Container';
@@ -35,18 +36,25 @@ class AddTasks extends Component {
 		};
 	}
 
-	_backAndSave = async () => {
-		this.props.navigation.goBack();
-	};
-
-	componentWillUnmount() {
+	async saveData() {
 		const data = {
 			id: this.props.tasks.length,
 			title: this.titleRef._lastNativeText,
 			content: this.noteRef._lastNativeText
 		};
 
-		this.props.addTask(data);
+		if (data.title !== null && data.content !== null) {
+			await saveTask(data);
+			this.props.addTask(data);
+		}
+	}
+
+	_backAndSave = async () => {
+		this.props.navigation.goBack();
+	};
+
+	componentWillUnmount() {
+		this.saveData();
 	}
 
 	_focusNote = () => {
