@@ -78,10 +78,22 @@ class Tasks extends Component {
 		);
 	}
 
+	_addTodoActions(data) {
+		this.props.removeTask(data);
+		AsyncStorage.removeItem(`@data${data}`);
+	}
+
 	_addTodo = async () => {
 		if (this.state.selected) {
-			await this.props.removeTask(this.state.selectedData[0].id);
-			await AsyncStorage.removeItem(`@data${this.state.selectedData[0].id}`);
+			let data = this.state.selectedData;
+
+			if (data.length > 1) {
+				for (let i = 0; i < data.length; i++) {
+					await this._addTodoActions(data[i].id);
+				}
+			} else {
+				await this._addTodoActions(data[0].id);
+			}
 			this.setState({ selectedData: [], selected: false });
 		} else {
 			this.props.navigation.navigate('AddTasks');
@@ -94,10 +106,11 @@ class Tasks extends Component {
 				<CustomStatusBar />
 				<View style={styles.container}>
 					<Searchbar
+						importantForAccessibility="yes"
 						placeholder="Search your notes"
 						icon="magnify"
 						selectionColor={config.grey700}
-						style={{ position: 'absolute', top: 0, margin: 15 }}
+						style={{ position: 'absolute', top: 0, margin: 15, zIndex: 1 }}
 					/>
 					{this._renderCards()}
 					<FAB icon={this.state.selected ? 'delete' : 'plus'} style={styles.fab} onPress={this._addTodo} />
