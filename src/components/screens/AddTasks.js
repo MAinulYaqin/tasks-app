@@ -38,16 +38,19 @@ class AddTasks extends Component {
 		};
 	}
 
-	async saveData() {
-		const data = {
-			id: this.state.id,
-			title: this.titleRef._lastNativeText,
-			content: this.noteRef._lastNativeText
-		};
+	saveData() {
+		const title = this.titleRef._lastNativeText;
+		const content = this.noteRef._lastNativeText;
 
-		if (data.title !== null && data.content !== null) {
-			await saveTask(data);
-			this.props.addTask(data);
+		if (title || content) {
+			const hash = Crypto.CryptoDigestAlgorithm.SHA256;
+			
+			Crypto.digestStringAsync(hash, title).then(async (id) => {
+				const data = { id, title, content };
+
+				await saveTask(data);
+				this.props.addTask(data);
+			});
 		}
 	}
 
@@ -65,19 +68,12 @@ class AddTasks extends Component {
 		}
 	}
 
-	componentWillUnmount() {
+	async componentWillUnmount() {
 		this.saveData();
 	}
 
-	_focusNote = async () => {
+	_focusNote = () => {
 		if (!this.state.showCheckbox) {
-			await Crypto.digestStringAsync(
-				Crypto.CryptoDigestAlgorithm.SHA256,
-				this.titleRef._lastNativeText
-			).then((id) => {
-				this.setState({ id });
-			});
-
 			this.noteRef.focus();
 		}
 	};
