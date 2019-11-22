@@ -40,15 +40,43 @@ class Tasks extends Component {
 		}
 	}
 
+	_removeTask(data) {
+		this.props.removeTask(data);
+		AsyncStorage.removeItem(`@data${data}`);
+	}
+
+	_onCustomCardPress = (data) => {
+		this.props.navigation.navigate('AddTasks', {
+			...data
+		});
+	};
+
+	_onCustomCardLongPress = (data) => {
+		this.state.selectedData.push(data);
+		this.setState({ selected: true });
+	};
+
+	_onFabPress = async () => {
+		if (this.state.selected) {
+			let data = this.state.selectedData;
+
+			if (data.length > 1) {
+				for (let i = 0; i < data.length; i++) {
+					await this._removeTask(data[i].id);
+				}
+			} else {
+				await this._removeTask(data[0].id);
+			}
+			this.setState({ selectedData: [], selected: false });
+		} else {
+			this.props.navigation.navigate('AddTasks');
+		}
+	};
+
 	_renderCards() {
 		if (this.props.tasks.length === 0) {
 			return (
-				<View
-					style={{
-						flex: 1,
-						justifyContent: 'center',
-						alignItems: 'center'
-					}}>
+				<View style={styles.header}>
 					<Image source={require('../../../assets/illustrations/home.png')} style={styles.image} />
 					<Title style={styles.title}>A fresh start</Title>
 					<Subheading style={styles.subheading}>Anything to add ?</Subheading>
@@ -58,8 +86,8 @@ class Tasks extends Component {
 
 		return (
 			<FlatList
-				style={{ flex: 1 }}
-				contentContainerStyle={{ padding: 20, paddingTop: 76 }}
+				style={styles.listWrapepr}
+				contentContainerStyle={styles.listContainer}
 				numColumns={2}
 				data={this.props.tasks}
 				keyExtractor={(e) => JSON.stringify(e.id)}
@@ -67,43 +95,14 @@ class Tasks extends Component {
 					return (
 						<CustomCard
 							data={item}
-							onPress={(data) => {
-								this.props.navigation.navigate('AddTasks', {
-									...data
-								});
-							}}
-							onLongPress={(data) => {
-								this.state.selectedData.push(data);
-								this.setState({ selected: true });
-							}}
+							onPress={(data) => this._onCustomCardPress(data)}
+							onLongPress={(data) => this._onCustomCardLongPress(data)}
 						/>
 					);
 				}}
 			/>
 		);
 	}
-
-	_addTodoActions(data) {
-		this.props.removeTask(data);
-		AsyncStorage.removeItem(`@data${data}`);
-	}
-
-	_addTodo = async () => {
-		if (this.state.selected) {
-			let data = this.state.selectedData;
-
-			if (data.length > 1) {
-				for (let i = 0; i < data.length; i++) {
-					await this._addTodoActions(data[i].id);
-				}
-			} else {
-				await this._addTodoActions(data[0].id);
-			}
-			this.setState({ selectedData: [], selected: false });
-		} else {
-			this.props.navigation.navigate('AddTasks');
-		}
-	};
 
 	render() {
 		return (
@@ -115,10 +114,10 @@ class Tasks extends Component {
 						placeholder="Search your notes"
 						icon="magnify"
 						selectionColor={config.grey700}
-						style={{ position: 'absolute', top: 0, margin: 15, zIndex: 1 }}
+						style={styles.searchbar}
 					/>
 					{this._renderCards()}
-					<FAB icon={this.state.selected ? 'delete' : 'plus'} style={styles.fab} onPress={this._addTodo} />
+					<FAB icon={this.state.selected ? 'delete' : 'plus'} style={styles.fab} onPress={this._onFabPress} />
 				</View>
 			</Container>
 		);
@@ -144,11 +143,16 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1
 	},
-	header: {
-		backgroundColor: 'white'
+	searchbar: {
+		position: 'absolute',
+		top: 0,
+		margin: 15,
+		zIndex: 1
 	},
-	headerTitle: {
-		color: grey800
+	header: {
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'center'
 	},
 	image: {
 		width: IMAGE_SQUARE_SIZE,
@@ -159,6 +163,13 @@ const styles = StyleSheet.create({
 	},
 	subheading: {
 		color: grey600
+	},
+	listWrapepr: {
+		flex: 1
+	},
+	listContainer: {
+		padding: 20,
+		paddingTop: 76
 	},
 	fab: {
 		backgroundColor: blue600,
