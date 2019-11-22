@@ -14,6 +14,7 @@ import {
 import { Appbar, Headline, Paragraph, Subheading, List, Checkbox, Button } from 'react-native-paper';
 import { connect } from 'react-redux';
 import { addTask, saveTask } from '../../redux/actions/tasks';
+import * as Crypto from 'expo-crypto';
 import * as config from '../../../config';
 
 import Container from '../Container';
@@ -31,6 +32,7 @@ class AddTasks extends Component {
 
 		this.state = {
 			showCheckbox: false,
+			id: null,
 			title: null,
 			content: null
 		};
@@ -38,7 +40,7 @@ class AddTasks extends Component {
 
 	async saveData() {
 		const data = {
-			id: this.props.tasks.length,
+			id: this.state.id,
 			title: this.titleRef._lastNativeText,
 			content: this.noteRef._lastNativeText
 		};
@@ -53,12 +55,29 @@ class AddTasks extends Component {
 		this.props.navigation.goBack();
 	};
 
+	componentDidMount() {
+		const params = this.props.navigation.state.params;
+		if (params) {
+			this.setState({
+				title: params.title,
+				content: params.content
+			});
+		}
+	}
+
 	componentWillUnmount() {
 		this.saveData();
 	}
 
-	_focusNote = () => {
+	_focusNote = async () => {
 		if (!this.state.showCheckbox) {
+			await Crypto.digestStringAsync(
+				Crypto.CryptoDigestAlgorithm.SHA256,
+				this.titleRef._lastNativeText
+			).then((id) => {
+				this.setState({ id });
+			});
+
 			this.noteRef.focus();
 		}
 	};
@@ -86,9 +105,11 @@ class AddTasks extends Component {
 								accessibilityTraits="text"
 								accessibilityRole="text"
 								onSubmitEditing={this._focusNote}
+								defaultValue={this.state.title}
 								style={styles.title}
 							/>
 							<TextInput
+								defaultValue={this.state.content}
 								ref={(noteReft) => (this.noteRef = noteReft)}
 								multiline={true}
 								placeholder="Note"

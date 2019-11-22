@@ -10,8 +10,8 @@ export default class CustomCard extends PureComponent {
 		selected: false
 	};
 
-	_onPress = () => {
-		this.state.selected ? this.setState({ selected: false }) : console.log('hello');
+	_onPress = (data) => {
+		this.props.onPress(data);
 	};
 
 	_onLongPress = (data) => {
@@ -23,7 +23,7 @@ export default class CustomCard extends PureComponent {
 		const { data } = this.props;
 		return (
 			<Card
-				// onPress={this._onPress}
+				onPress={() => this._onPress(data)}
 				onLongPress={() => this._onLongPress(data)}
 				key={data.id}
 				style={{

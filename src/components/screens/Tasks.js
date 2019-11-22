@@ -67,6 +67,11 @@ class Tasks extends Component {
 					return (
 						<CustomCard
 							data={item}
+							onPress={(data) => {
+								this.props.navigation.navigate('AddTasks', {
+									...data
+								});
+							}}
 							onLongPress={(data) => {
 								this.state.selectedData.push(data);
 								this.setState({ selected: true });
